@@ -2,20 +2,30 @@
 	<div class="form">
 		<h2>description</h2>
 		<form>
-			<input
-				v-model="user.name"
-				type="text"
-				name="username"
-				id="username"
-				placeholder="Username"
-				autocomplete="off" />
-			<input
-				v-model="user.phone"
-				type="text"
-				name="phonenumber"
-				id="phonenumber"
-				placeholder="Phone Number"
-				autocomplete="off" />
+			<ValidationProvider
+				rules="required|alpha"
+				v-slot="{ errors }">
+				<input
+					v-model.lazy="user.name"
+					type="text"
+					name="username"
+					id="username"
+					placeholder="Username"
+					autocomplete="off" />
+				<span>{{ errors[0] }}</span>
+			</ValidationProvider>
+			<ValidationProvider
+				:rules="{ regex: /^[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\|/-]+$/i }"
+				v-slot="{ errors }">
+				<input
+					v-model.lazy="user.phone"
+					type="text"
+					name="phonenumber"
+					id="phonenumber"
+					placeholder="Phone Number"
+					autocomplete="off" />
+				<span>{{ errors[0] }}</span>
+			</ValidationProvider>
 			<button
 				type="button"
 				@click="submit2">
