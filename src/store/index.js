@@ -11,7 +11,8 @@ export default new Vuex.Store({
 		users: [],
 		loggedUser: {},
 		todos: [],
-		todoStatuses: ['Complete', 'UnComplete', 'Favorites'],
+		todoStatuses: ['complete', 'uncomplete', 'favorites'],
+		favorites: [],
 	},
 	getters: {
 		userIds: ({ users }) => {
@@ -19,23 +20,57 @@ export default new Vuex.Store({
 		},
 	},
 	mutations: {
-		SET_USERS: (state, data) => {
-			state.users = data
+		SET_USERS: (state, users) => {
+			state.users = users
 		},
-		SET_LOGGED_USER: (state, data) => {
-			state.loggedUser = data
+		SET_LOGGED_USER: (state, loggedUser) => {
+			state.loggedUser = loggedUser
 		},
-		SET_TODOS: (state, data) => {
-			state.todos = data
+		SET_TODOS: (state, todos) => {
+			state.todos = todos.map((el) => {
+				let favorite = state.favorites.find((item) => item === el.id)
+				return {
+					...el,
+					favorite: !!favorite,
+				}
+			})
+		},
+		CHANGE_COMPLETE: (state, data) => {
+			state.todos = state.todos.map((todo) => {
+				if (todo.id === data.todoId) {
+					todo.completed = data.completed
+				}
+				return todo
+			})
+		},
+		CHANGE_FAVORITE: (state, data) => {
+			state.todos = state.todos.map((todo) => {
+				if (todo.id === data.todoId) {
+					todo.favorite = data.favorite
+					if (data.favorite) {
+						state.favorites.push(data.todoId)
+					} else {
+						state.favorites = state.favorites.filter((el) => el !== data.todoId)
+					}
+				}
+				return todo
+			})
 		},
 	},
 	actions: {
-		async getTodos({ commit }) {
+		async getTodos({ commit, rootState }) {
 			try {
 				const res = await axios.get(
 					'https://jsonplaceholder.typicode.com/todos'
 				)
 				commit('SET_TODOS', res.data)
+				return res.data.map((el) => {
+					let favorite = rootState.favorites.find((item) => item === el.id)
+					return {
+						...el,
+						favorite: !!favorite,
+					}
+				})
 			} catch (e) {
 				console.log(e)
 			}
@@ -67,7 +102,7 @@ export default new Vuex.Store({
 	},
 	plugins: [
 		createPersistedState({
-			key: 'pirena',
+			key: 'nuxgame',
 		}),
 	],
 })

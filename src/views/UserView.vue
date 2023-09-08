@@ -41,51 +41,18 @@
 			</div>
 			<div class="user__body">
 				<h2>Todos</h2>
-				<div class="user__body__filters">
-					<div class="col">
-						<select
-							name=""
-							id="">
-							<option value="">All Statuses</option>
-							<option
-								v-for="status in todoStatuses"
-								:key="status"
-								:value="status">
-								{{ status }}
-							</option>
-						</select>
-					</div>
-					<div class="col">
-						<select
-							name=""
-							id="">
-							<option value="">All IDs</option>
-							<option
-								v-for="userId in userIds"
-								:key="userId"
-								:value="userId">
-								{{ userId }}
-							</option>
-						</select>
-					</div>
-					<div class="col">
-						<input
-							type="text"
-							name=""
-							placeholder="Search"
-							id="" />
-					</div>
-				</div>
+				<Filters @set-filters="setFilters" />
 				<div v-if="todosLoading">Loading...</div>
 				<div
 					v-else
 					class="todos">
-					<div
-						v-for="todo in todos"
-						:key="todo.id"
-						class="todo">
-						<p v-for="(el, _idx) in todo">{{ _idx }} => {{ el }};</p>
-					</div>
+					<template v-if="todos.length">
+						<TodoItem
+							v-for="item in todos"
+							:key="item.id"
+							:item="item" />
+					</template>
+					<p v-else>Not Found</p>
 				</div>
 			</div>
 		</div>
@@ -93,62 +60,82 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import TodoItem from '@/components/todo-item.vue'
+import Filters from '@/components/filters.vue'
+import { mapState, mapActions } from 'vuex'
 export default {
 	name: 'UserView',
+	components: { TodoItem, Filters },
 	data() {
 		return {
 			todosLoading: false,
+			todos: [],
+			params: {
+				id: -1,
+				status: 'all',
+				search: '',
+			},
 		}
 	},
 	computed: {
 		...mapState({
 			loggedUser: (s) => s.loggedUser,
-			todos: (s) => s.todos,
-			todoStatuses: (s) => s.todoStatuses,
+			originalTodos: (s) => s.todos,
 		}),
-		...mapGetters(['userIds']),
+	},
+	async mounted() {
+		this.todosLoading = true
+		this.todos = await this.getTodos()
+		this.todosLoading = false
 	},
 	methods: {
 		...mapActions({
 			getTodos: 'getTodos',
 		}),
+		setFilters(filter) {
+			this.params = { ...this.params, ...filter }
+		},
 	},
-	created() {
-		console.log(this.todoStatuses)
-	},
-	async mounted() {
-		this.todosLoading = true
-		await this.getTodos()
-		this.todosLoading = false
+	watch: {
+		params: {
+			handler() {
+				this.todos = this.originalTodos
+					.filter((todo) =>
+						this.params.id !== -1 ? todo.userId === this.params.id : todo
+					)
+					.filter((todo) => {
+						if (this.params.status === 'all') {
+							return todo
+						} else if (this.params.status === 'complete') {
+							return todo.completed
+						} else if (this.params.status === 'uncomplete') {
+							return !todo.completed
+						} else if (this.params.status === 'favorites') {
+							return todo.favorite
+						}
+					})
+					.filter((todo) => {
+						return this.params.search
+							? todo.title
+									.toLowerCase()
+									.includes(this.params.search.toLowerCase())
+							: todo
+					})
+			},
+			deep: true,
+		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-select {
-	background: #fff;
-	padding: 10px;
-	width: 100%;
-	border-radius: 5px;
-	min-height: 40px;
-}
-
 .todos {
 	display: flex;
 	flex-direction: column;
 	margin-top: 10px;
-}
-.todo {
 	width: 100%;
-	max-width: 600px;
+	max-width: 700px;
 	margin-inline: auto;
-	padding: 10px 30px;
-	border-radius: 5px;
-	background: #919191;
-	&:not(:last-child) {
-		margin-bottom: 5px;
-	}
 }
 .user {
 	height: 100%;
@@ -185,17 +172,6 @@ select {
 		}
 	}
 	&__body {
-		&__filters {
-			width: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-
-			.col {
-				width: 100%;
-				max-width: 33%;
-			}
-		}
 		h2 {
 			text-align: center;
 			margin-bottom: 30px;
