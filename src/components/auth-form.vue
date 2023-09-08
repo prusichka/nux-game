@@ -1,53 +1,70 @@
 <template>
 	<div class="form">
 		<h2>description</h2>
-		<form>
-			<ValidationProvider
-				rules="required|alpha"
-				v-slot="{ errors }">
-				<input
-					v-model.lazy="user.name"
-					type="text"
-					name="username"
-					id="username"
-					placeholder="Username"
-					autocomplete="off" />
-				<span>{{ errors[0] }}</span>
-			</ValidationProvider>
-			<ValidationProvider
-				:rules="{ regex: /^[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\|/-]+$/i }"
-				v-slot="{ errors }">
-				<input
-					v-model.lazy="user.phone"
-					type="text"
-					name="phonenumber"
-					id="phonenumber"
-					placeholder="Phone Number"
-					autocomplete="off" />
-				<span>{{ errors[0] }}</span>
-			</ValidationProvider>
-			<button
-				type="button"
-				@click="submit2">
-				Register
-			</button>
-		</form>
+		<ValidationObserver v-slot="{ invalid }">
+			<form @submit.prevent="onSubmit">
+				<div class="form__field">
+					<ValidationProvider
+						rules="required|alpha_spaces"
+						v-slot="{ errors }">
+						<input
+							v-model.lazy="user.name"
+							type="text"
+							name="username"
+							id="username"
+							placeholder="Username"
+							autocomplete="off" />
+						<span class="form__field__error">{{ errors[0] }}</span>
+					</ValidationProvider>
+				</div>
+				<div class="form__field">
+					<ValidationProvider
+						:rules="{ regex: /^[0-9!@#\$%^&*()_+{}\[\]:;<>,.?~\\|\-=\/\s]*$/ }"
+						v-slot="{ errors }">
+						<input
+							v-model.lazy="user.phone"
+							type="text"
+							name="phonenumber"
+							id="phonenumber"
+							placeholder="Phone Number"
+							autocomplete="off" />
+						<span class="form__field__error">{{ errors[0] }}</span>
+					</ValidationProvider>
+				</div>
+				<button
+					type="submit"
+					:disabled="invalid">
+					Login
+				</button>
+			</form>
+		</ValidationObserver>
 	</div>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 export default {
 	name: 'auth-form',
 	data() {
 		return {
 			user: {
-				name: '',
-				phone: '',
+				name: 'Kamren',
+				phone: '(254)954-1289',
 			},
 		}
 	},
 	methods: {
-		submit2() {},
+		...mapActions({
+			logIn: 'logIn',
+		}),
+
+		async onSubmit() {
+			let userData = {
+				username: this.user.name,
+				phone: this.user.phone,
+			}
+			await this.logIn(userData)
+		},
 	},
 }
 </script>
@@ -64,8 +81,16 @@ export default {
 		margin-bottom: 15px;
 	}
 
-	input {
+	&__field {
 		margin-bottom: 20px;
+		position: relative;
+
+		&__error {
+			position: absolute;
+			bottom: -18px;
+			left: 0;
+			color: red;
+		}
 	}
 
 	button {

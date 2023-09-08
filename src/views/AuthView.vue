@@ -12,10 +12,19 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import AuthForm from '@/components/auth-form.vue'
 export default {
 	name: 'AuthView',
 	components: { AuthForm },
+	methods: {
+		...mapActions({
+			allUsers: 'getUsers',
+		}),
+	},
+	async mounted() {
+		await this.allUsers()
+	},
 }
 </script>
 
