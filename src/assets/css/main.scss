@@ -1,3 +1,5 @@
+@import url('./form.scss');
+
 * {
 	font-family: Roboto;
 	font-style: normal;
@@ -48,9 +50,21 @@ select::-ms-expand {
 	margin-inline: auto;
 }
 
-.divider {
-	width: 100%;
-	height: 2px;
-	background: #000;
-	margin: 15px 0;
+#app {
+	button {
+		border-radius: 5px;
+		background: #519945;
+		padding: 10px 30px;
+		width: 100%;
+		color: #fff;
+		font-size: 17px;
+		font-weight: 600;
+		line-height: 21px;
+		letter-spacing: -0.425px;
+		transition: background-color 0.3s ease;
+
+		&:hover {
+			background: #66a75b;
+		}
+	}
 }

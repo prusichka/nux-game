@@ -4,6 +4,16 @@ import axios from 'axios'
 import createPersistedState from 'vuex-persistedstate'
 import router from '@/router'
 
+const setFavorites = (todos, favorites) => {
+	return todos.map((el) => {
+		let favorite = favorites.find((item) => item === el.id)
+		return {
+			...el,
+			favorite: !!favorite,
+		}
+	})
+}
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -27,13 +37,7 @@ export default new Vuex.Store({
 			state.loggedUser = loggedUser
 		},
 		SET_TODOS: (state, todos) => {
-			state.todos = todos.map((el) => {
-				let favorite = state.favorites.find((item) => item === el.id)
-				return {
-					...el,
-					favorite: !!favorite,
-				}
-			})
+			state.todos = setFavorites(todos, state.favorites)
 		},
 		CHANGE_COMPLETE: (state, data) => {
 			state.todos = state.todos.map((todo) => {
@@ -56,6 +60,15 @@ export default new Vuex.Store({
 				return todo
 			})
 		},
+		ADD_NEW_TODO: (state, data) => {
+			let newTodo = {
+				completed: false,
+				favorite: false,
+				id: state.todos.length + 1,
+				...data,
+			}
+			state.todos.unshift(newTodo)
+		},
 	},
 	actions: {
 		async getTodos({ commit, rootState }) {
@@ -64,13 +77,7 @@ export default new Vuex.Store({
 					'https://jsonplaceholder.typicode.com/todos'
 				)
 				commit('SET_TODOS', res.data)
-				return res.data.map((el) => {
-					let favorite = rootState.favorites.find((item) => item === el.id)
-					return {
-						...el,
-						favorite: !!favorite,
-					}
-				})
+				return setFavorites(res.data, rootState.favorites)
 			} catch (e) {
 				console.log(e)
 			}
@@ -86,7 +93,7 @@ export default new Vuex.Store({
 				commit('SET_LOGGED_USER', result)
 				await router.push({ name: 'UserView' })
 			} else {
-				console.log('Login error')
+				return 'Login error'
 			}
 		},
 		async getUsers({ commit }) {

@@ -36,6 +36,11 @@
 					:disabled="invalid">
 					Login
 				</button>
+				<p
+					v-if="authStatus"
+					class="form__auth__error">
+					{{ authStatus }}
+				</p>
 			</form>
 		</ValidationObserver>
 	</div>
@@ -51,6 +56,7 @@ export default {
 				name: 'Kamren',
 				phone: '(254)954-1289',
 			},
+			authStatus: '',
 		}
 	},
 	methods: {
@@ -63,51 +69,10 @@ export default {
 				username: this.user.name,
 				phone: this.user.phone,
 			}
-			await this.logIn(userData)
+			this.authStatus = await this.logIn(userData)
 		},
 	},
 }
 </script>
 
-<style lang="scss" scoped>
-.form {
-	width: 100%;
-
-	h2 {
-		color: #5f5f5f;
-		font-size: 15px;
-		line-height: 21px;
-		letter-spacing: -0.375px;
-		margin-bottom: 15px;
-	}
-
-	&__field {
-		margin-bottom: 20px;
-		position: relative;
-
-		&__error {
-			position: absolute;
-			bottom: -18px;
-			left: 0;
-			color: red;
-		}
-	}
-
-	button {
-		border-radius: 5px;
-		background: #519945;
-		padding: 10px 30px;
-		width: 100%;
-		color: #fff;
-		font-size: 17px;
-		font-weight: 600;
-		line-height: 21px;
-		letter-spacing: -0.425px;
-		transition: background-color 0.3s ease;
-
-		&:hover {
-			background: #66a75b;
-		}
-	}
-}
-</style>
+<style lang="scss" scoped></style>

@@ -77,5 +77,13 @@ export default {
 			padding-right: 10px;
 		}
 	}
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+
+		h2 {
+			margin-bottom: 10px;
+		}
+	}
 }
 </style>

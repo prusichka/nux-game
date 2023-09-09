@@ -75,13 +75,13 @@ export default {
 <style lang="scss" scoped>
 .user__body__filters {
 	width: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+	margin-bottom: 20px;
 
-	.col {
-		width: 100%;
-		max-width: 33%;
+	@media (max-width: 480px) {
+		grid-template-columns: 1fr;
 	}
 
 	select {

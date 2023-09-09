@@ -39,8 +39,7 @@ export default {
 	&__card {
 		border-radius: 5px;
 		background: #c3c3c3;
-		width: 100%;
-		max-width: 450px;
+		width: min(100% - 20px, 450px);
 		margin-inline: auto;
 
 		&__header {
