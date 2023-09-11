@@ -72,6 +72,13 @@ export default {
 			this.authStatus = await this.logIn(userData)
 		},
 	},
+	watch: {
+		authStatus() {
+			if (this.authStatus) {
+				setTimeout(() => (this.authStatus = ''), 2000)
+			}
+		},
+	},
 }
 </script>
 
